@@ -147,12 +147,7 @@ function DatePickerFormComponent({
     helperText, 
     label, 
     placeHolder, 
-    required, 
-    includeTime, 
-    dateFormat,
-    showPlaceholder,
-    minDate,
-    maxDate,
+    required,
     readOnly
   } = block.attributes;
 
@@ -257,7 +252,6 @@ function DatePickerPropertiesComponent({
     helperText: z.string().max(200),
     required: z.boolean().default(false),
     placeHolder: z.string().max(50),
-    dateFormat: z.enum(["DD/MM/YYYY", "YYYY-MM-DD", "Month Day, Year", "MM/YYYY", "YYYY"]).default("YYYY-MM-DD"),
     includeTime: z.boolean().default(false),
     showPlaceholder: z.boolean().default(true),
     autoComplete: z.boolean().default(false),
@@ -278,7 +272,7 @@ function DatePickerPropertiesComponent({
       helperText: block.attributes.helperText,
       required: block.attributes.required,
       placeHolder: block.attributes.placeHolder,
-      dateFormat: block.attributes.dateFormat || "YYYY-MM-DD",
+
       includeTime: block.attributes.includeTime || false,
       showPlaceholder: block.attributes.showPlaceholder ?? true,
       autoComplete: block.attributes.autoComplete || false,
@@ -296,7 +290,6 @@ function DatePickerPropertiesComponent({
       helperText: block.attributes.helperText,
       required: block.attributes.required,
       placeHolder: block.attributes.placeHolder,
-      dateFormat: block.attributes.dateFormat || "YYYY-MM-DD",
       includeTime: block.attributes.includeTime || false,
       showPlaceholder: block.attributes.showPlaceholder ?? true,
       autoComplete: block.attributes.autoComplete || false,

@@ -46,7 +46,13 @@ const FormItem = (props: PropsType) => {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -221,12 +227,12 @@ const FormItem = (props: PropsType) => {
                 {name}
               </h3>
               <p className="text-sm text-gray-500">
-                Created {formatDistanceToNowStrict(new Date(createdAt), { addSuffix: true })}
+                Created {mounted ? formatDistanceToNowStrict(new Date(createdAt), { addSuffix: true }) : 'recently'}
               </p>
             </div>
           </div>
 
-          {/* Stats Cards - Made Bigger */}
+          {/* Stats Cards */}
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-2xl p-4 group-hover:scale-105 transition-transform duration-200">
               <div className="flex items-center justify-between">

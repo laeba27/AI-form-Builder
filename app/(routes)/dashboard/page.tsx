@@ -4,7 +4,7 @@ import StatsCards from "./_components/StatsCards";
 import { Separator } from "@/components/ui/separator";
 import CreateForm from "./_components/CreateForm";
 import { Loader } from "lucide-react";
-import FormItem from "./_components/_common/FormItem";
+import FormListClient from "./_components/FormListClient";
 
 const Dashboard = () => {
   return (
@@ -39,11 +39,12 @@ const Dashboard = () => {
           </div>
 
           <div
-            className="grid gap-4  grid-cols-2
-           md:grid-cols-5
-           lg:grid-cols-3
-           xl:grid-cols-5
-           
+            className="grid gap-6 
+           grid-cols-1
+           md:grid-cols-2
+           lg:grid-cols-2
+           xl:grid-cols-3
+           2xl:grid-cols-4
            "
           >
             <Suspense
@@ -71,23 +72,7 @@ async function StatsListWrap() {
 
 async function FormList() {
   const { form } = await fetchAllForms();
-  return (
-    <>
-      {form?.map((form) => (
-        <FormItem 
-          key={form.id}
-          id={form.id}
-          formId={form.formId}
-          name={form.name}
-          published={form.published}
-          createdAt={form.createdAt}
-          responses={form.responses}
-          views={form.views}
-          backgroundColor={form.settings.backgroundColor}
-        />
-      ))}
-    </>
-  );
+  return <FormListClient forms={form || []} />;
 }
 
 export default Dashboard;
