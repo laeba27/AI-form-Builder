@@ -74,7 +74,7 @@ async function FormList() {
   return (
     <>
       {form?.map((form) => (
-        <FormItem className="flex gap-3"
+        <FormItem 
           key={form.id}
           id={form.id}
           formId={form.formId}

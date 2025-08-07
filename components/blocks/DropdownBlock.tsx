@@ -300,7 +300,7 @@ function DropdownPropertiesComponent({
             control={form.control}
             name="label"
             render={({ field }) => (
-              <FormItem className="text-end">
+              <FormItem >
                 <div className="flex items-baseline justify-between w-full gap-2">
                   <FormLabel className="text-[13px] font-normal">Label</FormLabel>
                   <div className="w-full max-w-[187px]">
