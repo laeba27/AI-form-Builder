@@ -148,7 +148,14 @@ function DatePickerFormComponent({
     label, 
     placeHolder, 
     required,
-    readOnly
+    readOnly,
+    includeTime,
+    dateFormat,
+    showPlaceholder,
+    minDate,
+    maxDate,
+    allowPastDates,
+    allowFutureDates
   } = block.attributes;
 
   const [value, setValue] = useState("");

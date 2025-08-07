@@ -3,32 +3,10 @@ import React from "react";
 import FormItem from "./_common/FormItem";
 import { softDeleteForm } from "@/actions/delete-form.action";
 import { useRouter } from "next/navigation";
-
-type FormType = {
-  id: number;
-  formId: string;
-  name: string;
-  published: boolean;
-  createdAt: Date;
-  responses: number;
-  views: number;
-  settings: {
-    id: number;
-    createdAt: Date;
-    updatedAt: Date;
-    primaryColor: string;
-    backgroundColor: string;
-  };
-  userId: string;
-  settingsId: number;
-  formContent: string;
-  updatedAt: Date;
-  description: string;
-  creatorName: string;
-};
+import { FormListType } from "@/@types/form.type";
 
 type FormListClientProps = {
-  forms: FormType[];
+  forms: FormListType[];
 };
 
 const FormListClient = ({ forms }: FormListClientProps) => {

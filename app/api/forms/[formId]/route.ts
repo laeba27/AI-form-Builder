@@ -24,7 +24,7 @@ export async function DELETE(
       where: {
         formId: formId,
         userId: user.id,
-        active: true, // Only find active forms
+        // active: true, // Uncomment when active field is added to schema
       },
     });
 
@@ -41,7 +41,7 @@ export async function DELETE(
         id: existingForm.id,
       },
       data: {
-        active: false,
+        // active: false, // Uncomment when active field is added to schema
         updatedAt: new Date(),
       },
     });
