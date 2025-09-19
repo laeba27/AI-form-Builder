@@ -376,3 +376,180 @@ export async function fetchAllResponseByFormId(formId: string) {
     };
   }
 }
+
+export async function updateFormSettings(data: {
+  formId: string;
+  validUpto?: Date | null;
+}) {
+  try {
+    const { formId, validUpto } = data;
+    const session = getKindeServerSession();
+    const user = await session.getUser();
+
+    if (!user) {
+      return {
+        success: false,
+        message: "Unauthorized to use this resource",
+      };
+    }
+
+    // First, verify the user owns the form
+    const form = await prisma.form.findUnique({
+      where: {
+        formId: formId,
+        userId: user.id, // Ensure user owns the form
+      },
+    });
+
+    if (!form) {
+      return {
+        success: false,
+        message: "Form not found or you don't have permission to modify it",
+      };
+    }
+
+    // Check if FormSettings entry exists for this formId
+    const existingSettings = await prisma.$queryRaw<[{id: number}]>`
+      SELECT id FROM "FormSettings" WHERE "formId" = ${formId}::uuid
+    `;
+
+    let settings;
+    if (existingSettings.length > 0) {
+      // Update existing settings
+      await prisma.$executeRaw`
+        UPDATE "FormSettings" 
+        SET "validUpto" = ${validUpto}, "updatedAt" = NOW()
+        WHERE "formId" = ${formId}::uuid
+      `;
+      
+      settings = await prisma.$queryRaw<[{id: number, validUpto: Date | null, updatedAt: Date}]>`
+        SELECT id, "validUpto", "updatedAt" FROM "FormSettings" WHERE "formId" = ${formId}::uuid
+      `;
+    } else {
+      // Create new settings entry
+      await prisma.$executeRaw`
+        INSERT INTO "FormSettings" ("formId", "primaryColor", "backgroundColor", "validUpto", "createdAt", "updatedAt")
+        VALUES (${formId}::uuid, '#2d31fa', '#ffffff', ${validUpto}, NOW(), NOW())
+      `;
+      
+      settings = await prisma.$queryRaw<[{id: number, validUpto: Date | null, updatedAt: Date}]>`
+        SELECT id, "validUpto", "updatedAt" FROM "FormSettings" WHERE "formId" = ${formId}::uuid
+      `;
+    }
+
+    return {
+      success: true,
+      message: "Form settings updated successfully",
+      settings: settings[0],
+    };
+  } catch (error) {
+    console.error("Error updating form settings:", error);
+    return {
+      success: false,
+      message: "Something went wrong while updating form settings",
+    };
+  }
+}
+
+export async function checkFormExpiry(formId: string) {
+  try {
+    const form = await prisma.form.findUnique({
+      where: {
+        formId: formId,
+      },
+    });
+
+    if (!form) {
+      return {
+        success: false,
+        message: "Form not found",
+      };
+    }
+
+    // Get the validUpto field from FormSettings using the formId
+    const settingsWithExpiry = await prisma.$queryRaw<[{validUpto: Date | null}]>`
+      SELECT "validUpto" FROM "FormSettings" WHERE "formId" = ${formId}::uuid
+    `;
+
+    const validUpto = settingsWithExpiry[0]?.validUpto;
+    const isExpired = validUpto ? new Date() > new Date(validUpto) : false;
+
+    // If form is expired and still published, unpublish it
+    if (isExpired && form.published) {
+      await prisma.form.update({
+        where: {
+          formId: formId,
+        },
+        data: {
+          published: false,
+        },
+      });
+
+      return {
+        success: true,
+        message: "Form has expired and has been unpublished",
+        expired: true,
+        unpublished: true,
+      };
+    }
+
+    return {
+      success: true,
+      message: isExpired ? "Form has expired" : "Form is still active",
+      expired: isExpired,
+      unpublished: false,
+    };
+  } catch (error) {
+    console.error("Error checking form expiry:", error);
+    return {
+      success: false,
+      message: "Error checking form expiry",
+    };
+  }
+}
+
+export async function getFormSettings(formId: string) {
+  try {
+    const session = getKindeServerSession();
+    const user = await session.getUser();
+
+    if (!user) {
+      return {
+        success: false,
+        message: "Unauthorized to use this resource",
+      };
+    }
+
+    // First, verify the user owns the form
+    const form = await prisma.form.findUnique({
+      where: {
+        formId: formId,
+        userId: user.id,
+      },
+    });
+
+    if (!form) {
+      return {
+        success: false,
+        message: "Form not found or you don't have permission to access it",
+      };
+    }
+
+    // Get form settings
+    const settings = await prisma.$queryRaw<[{id: number, validUpto: Date | null, primaryColor: string, backgroundColor: string}]>`
+      SELECT id, "validUpto", "primaryColor", "backgroundColor" FROM "FormSettings" WHERE "formId" = ${formId}::uuid
+    `;
+
+    return {
+      success: true,
+      message: "Form settings fetched successfully",
+      settings: settings[0] || null,
+    };
+  } catch (error) {
+    console.error("Error fetching form settings:", error);
+    return {
+      success: false,
+      message: "Something went wrong while fetching form settings",
+    };
+  }
+}

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,15 +19,95 @@ import { FileTextIcon, Home } from "lucide-react";
 import FormBlockBox from "./_common/FormBlockBox";
 import FormSettings from "./_common/FormSettings";
 import { useBuilder } from "@/context/builder-provider";
+import { updateFormSettings, getFormSettings } from "@/actions/form.action";
+import { useToast } from "@/hooks/use-toast";
 
 const BuilderSidebar = ({
   rest,
 }: {
   rest?: React.ComponentProps<typeof Sidebar>;
 }) => {
-  const { formData } = useBuilder();
+  const { formData, setFormData } = useBuilder();
+  const { toast } = useToast();
 
   const [tab, setTab] = useState<"blocks" | "settings">("blocks");
+  const [currentSettings, setCurrentSettings] = useState<{
+    validUpto?: Date | null;
+  } | null>(null);
+  const [settingsLoading, setSettingsLoading] = useState(false);
+
+  // Load form settings when switching to settings tab
+  const loadFormSettings = async () => {
+    if (!formData?.formId || settingsLoading) return;
+    
+    setSettingsLoading(true);
+    try {
+      const result = await getFormSettings(formData.formId);
+      if (result.success && result.settings) {
+        setCurrentSettings({
+          validUpto: result.settings.validUpto,
+        });
+      }
+    } catch (error) {
+      console.error("Error loading form settings:", error);
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
+  // Load settings when tab changes to settings
+  useEffect(() => {
+    if (tab === "settings" && formData?.formId) {
+      loadFormSettings();
+    }
+  }, [tab, formData?.formId]);
+
+  const handleFormSettingsSave = async (settings: { 
+    formId: string;
+    validUpto?: Date | null;
+    primaryColor?: string;
+    backgroundColor?: string;
+  }) => {
+    if (!formData?.formId) {
+      toast({
+        title: "Error",
+        description: "No form selected",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const result = await updateFormSettings({
+        formId: formData.formId,
+        validUpto: settings.validUpto,
+      });
+
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: result.message,
+        });
+        
+        // Update local settings
+        setCurrentSettings({
+          validUpto: settings.validUpto,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update form settings",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <Sidebar className="border-r left-12 pt-16" {...rest}>
@@ -102,7 +182,13 @@ const BuilderSidebar = ({
           {/* {Form Blocks} */}
           {tab === "blocks" && <FormBlockBox />}
           {/* {Form Settings} */}
-          {tab === "settings" && <FormSettings />}
+          {tab === "settings" && formData?.formId && (
+            <FormSettings 
+              formId={formData.formId}
+              currentSettings={currentSettings || undefined}
+              onSave={handleFormSettingsSave}
+            />
+          )}
         </div>
       </SidebarContent>
     </Sidebar>

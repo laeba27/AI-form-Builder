@@ -4,7 +4,11 @@ import NotAvaliable from "../../_components/NotAvaliable";
 import { FormBlockInstance } from "@/@types/form-block.type";
 import FormSubmitComponent from "../../_components/FormSubmitComponent";
 
-const Page = async ({ params }: { params: { formId: string } }) => {
+type PageProps = {
+  params: { formId: string };
+};
+
+const Page = async ({ params }: PageProps) => {
   const { formId } = params;
 
   const { form } = await fetchPublishFormById(formId);

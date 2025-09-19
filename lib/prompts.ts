@@ -5,7 +5,8 @@ export const generateFormQuestionPrompt = (
   userRequest: string,
   formTitle: string,
   formDescription: string,
-  currentBlocks: FormBlockInstance[]
+  currentBlocks: FormBlockInstance[],
+  numberOfQuestions: number = 5
 ) => {
   const stringifiedBlocks = JSON.stringify(currentBlocks, null, 2);
 
@@ -119,6 +120,8 @@ export const generateFormQuestionPrompt = (
 ${userRequest}
 \`\`\`
 
+**Number of Questions Requested**: ${numberOfQuestions}
+
 **Existing Blocks**:
 \`\`\`json
 ${stringifiedBlocks}
@@ -128,10 +131,12 @@ ${stringifiedBlocks}
 
 ### Output Requirements:
 1. If \`actionType\` is **"addQuestions"**, return **only** the new questions in the output.
+    - Generate exactly ${numberOfQuestions} new questions unless the user request specifies otherwise.
     - Do not include duplicate questions or modify existing ones.
     - Return new questions encapsulated in \`RowLayout\` blocks.
     - Include unique \`id\` for all blocks and child blocks.
 2. If \`actionType\` is **"createForm"**, return the entire form structure including headings, descriptions, and all new blocks.
+    - Generate approximately ${numberOfQuestions} questions for the form unless the user request specifies otherwise.
     - Completely replace the \`currentBlocks\`.
     - Use the title and description from the user request as part of the new form definition.
 3. Ensure proper encapsulation of all questions and fields in \`RowLayout\` blocks.

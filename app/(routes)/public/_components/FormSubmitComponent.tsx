@@ -171,7 +171,7 @@ const FormSubmitComponent = (props: {
           justify-center
           mt-5"
           >
-            <p className="text-xs ">Never submit passwords through Formy.ai.</p>
+            <p className="text-xs ">Never submit passwords through Formify.</p>
             <Logo url="#" color="!text-primary" />
           </div>
         </div>

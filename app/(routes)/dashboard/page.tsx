@@ -4,7 +4,12 @@ import StatsCards from "./_components/StatsCards";
 import { Separator } from "@/components/ui/separator";
 import CreateForm from "./_components/CreateForm";
 import { Loader } from "lucide-react";
-import FormListClient from "./_components/FormListClient";
+import dynamic from "next/dynamic";
+
+const FormListClient = dynamic(
+  () => import("./_components/FormListClient"),
+  { ssr: false }
+);
 
 const Dashboard = () => {
   return (
@@ -49,7 +54,7 @@ const Dashboard = () => {
           >
             <Suspense
               fallback={[1, 2, 3, 4].map((item) => (
-                <Loader size="3rem" className="animate-spin  " />
+                <Loader key={item} size="3rem" className="animate-spin  " />
               ))}
             >
               <FormList />

@@ -17,6 +17,7 @@ export type FormListType = {
     updatedAt: Date;
     primaryColor: string;
     backgroundColor: string;
+    validUpto?: Date | null; // Add validUpto field
   };
   userId: string;
   settingsId: number;
@@ -25,4 +26,8 @@ export type FormListType = {
   description: string;
   creatorName: string;
   active?: boolean; // Optional until database schema is updated
+  formContent?: string; // Add this missing property
 };
+
+// Alias for compatibility
+export type FormType = FormListType;

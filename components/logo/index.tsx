@@ -30,7 +30,7 @@ const Logo = (props: { url?: string; color?: string }) => {
             color
           )}
         >
-          Formy.ai
+          Formify
         </h5>
       </Link>
     </div>
